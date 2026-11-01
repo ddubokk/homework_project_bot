@@ -1,13 +1,22 @@
-from src.masks import get_mask_account, get_mask_card_number
+from src.widget import mask_account_card
 
 if __name__ == "__main__":
-    # 1. Проверяем маску карты
-    card_input = input("Введите номер карты: ")
-    print(f"Маска карты: {get_mask_card_number(card_input)}")
+    while True:
+        user_input = input(
+            "\nВведите данные (В формате: Visa 1234567812345678, Счет 1234567890... или введите exit для выхода): "
+        ).strip()
 
-    print("-" * 40)
-    print("*" * 40)
+        if user_input.lower() == "exit":
+            print("Программа завершена.")
+            break
 
-    # 2. Проверяем маску счета
-    account_input = input("Введите номер счета: ")
-    print(f"Маска счета: {get_mask_account(account_input)}")
+        if user_input == "":
+            print("Строка не должна быть пустой. Попробуйте еще раз.")
+            continue
+
+        result = mask_account_card(user_input)
+        if result.startswith("Ошибка:"):
+            print(result)
+        else:
+            print(f"Результат: {result}")
+            break
