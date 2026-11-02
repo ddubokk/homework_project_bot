@@ -2,14 +2,10 @@ import os
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import telebot
-from dotenv import load_dotenv
 from src.widget import mask_account_card
 
-load_dotenv()
-TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-
-if not TOKEN:
-    raise ValueError("Ошибка: Токен бота не найден в файле .env!")
+# Жестко прописываем токен, чтобы избежать ошибок с переменными окружения
+TOKEN = "ВАШ_ТОЧНЫЙ_ТОКЕН_ОТ_BOTFATHER"
 
 bot = telebot.TeleBot(TOKEN)
 
