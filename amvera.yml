@@ -1,0 +1,5 @@
+meta:
+  environment: python
+  toolchain: poetry
+run:
+  command: poetry run python src/bot.py
