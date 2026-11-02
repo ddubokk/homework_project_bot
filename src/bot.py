@@ -5,7 +5,7 @@ import telebot
 from src.widget import mask_account_card
 
 # Жестко прописываем токен, чтобы избежать ошибок с переменными окружения
-TOKEN = "ВАШ_ТОЧНЫЙ_ТОКЕН_ОТ_BOTFATHER"
+TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 
 bot = telebot.TeleBot(TOKEN)
 
