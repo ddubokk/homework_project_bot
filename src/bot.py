@@ -1,14 +1,11 @@
 import os
-
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
 import telebot
 from dotenv import load_dotenv
-
 from src.widget import mask_account_card
 
-# Загружаем переменные из файла .env
 load_dotenv()
-
-# Безопасно достаем токен
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
 if not TOKEN:
@@ -17,9 +14,27 @@ if not TOKEN:
 bot = telebot.TeleBot(TOKEN)
 
 
+# --- МИНИ-СЕРВЕР ДЛЯ БЕСПЛАТНОГО ХОСТИНГА ---
+def run_health_server():
+    class HealthCheckHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200)
+            self.send_header("Content-type", "text/plain")
+            self.end_headers()
+            self.wfile.write(b"Bot is alive!")
+
+        def log_message(self, format, *args):
+            return  # Отключаем лишние логи в консоли
+
+    port = int(os.environ.get("PORT", 10000))
+    server = HTTPServer(("0.0.0.0", port), HealthCheckHandler)
+    server.serve_forever()
+
+
+# --------------------------------------------
+
 @bot.message_handler(commands=["start", "help"])
 def send_welcome(message):
-    """Приветственное сообщение при старте бота."""
     welcome_text = (
         "👋 Привет! Я бот для маскирования номеров карт и счетов.\n\n"
         "Отправьте мне строку в формате:\n"
@@ -32,13 +47,9 @@ def send_welcome(message):
 
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
-    """Обработка любого текстового сообщения от пользователя."""
     user_input = message.text.strip()
-
-    # Передаем текст в вашу функцию из ДЗ
     result = mask_account_card(user_input)
 
-    # Используем срез [:7], чтобы проверить на ошибку
     if result[:7] == "Ошибка:":
         bot.reply_to(message, f"❌ {result}")
     else:
@@ -46,5 +57,8 @@ def handle_message(message):
 
 
 if __name__ == "__main__":
-    print("Бот запущен и готов к работе...")
+    # Запускаем веб-заглушку в отдельном потоке, чтобы хостинг не ругался
+    threading.Thread(target=run_health_server, daemon=True).start()
+
+    print("Бот успешно запущен в режиме Production и готов к работе...")
     bot.infinity_polling()
